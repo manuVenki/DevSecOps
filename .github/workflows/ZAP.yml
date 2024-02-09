@@ -1,0 +1,48 @@
+name: DAST-ZAP
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
+jobs: 
+  build: 
+    permissions: write-all
+    runs-on: ubuntu:latest
+    steps: 
+      - uses: actions/checkout@v2
+
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: 'https://dextra.infogain.com/'
+          allow_issue_writing: true
+          ACTIONS_STEP_DEBUG: true
+
+      - name: List files in workspace
+        run: ls -la
+      
+      - name: Upload ZAP report
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-report-json
+          path: report_json.json
+        
+      - name: Upload ZAP report
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-report-md
+          path: report_md.md
+        
+
+      - name: Upload ZAP report-html
+        uses: actions/upload-artifact@v2
+        with:
+          name: zap-report
+          path: report_html.html
